@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Restaurant</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="container" id="app">
+  </div>
+
+  <script>
+    const CATEGORIES = [
+      { short_name: 'SP', name: 'Specials', items: [ {name:'Chef Salad', price:6.95, desc:'Mixed greens, roasted veg'}, {name:'Daily Soup', price:3.5, desc:'Ask server for today\'s soup'} ] },
+      { short_name: 'L', name: 'Lunch', items: [ {name:'BLT Sandwich', price:7.99, desc:'Bacon, lettuce, tomato'}, {name:'Caesar Wrap', price:8.5, desc:'Crispy chicken, romaine'} ] },
+      { short_name: 'D', name: 'Dinner', items: [ {name:'Steak Frites', price:19.5, desc:'Sirloin & fries'}, {name:'Salmon Fillet', price:17.0, desc:'Lemon butter glaze'} ] },
+      { short_name: 'SU', name: 'Sushi', items: [ {name:'California Roll', price:8.0, desc:'Crab, avocado, cucumber'}, {name:'Salmon Nigiri', price:6.5, desc:'Two pieces'} ] },
+      { short_name: 'V', name: 'Vegan', items: [ {name:'Quinoa Bowl', price:9.0, desc:'Roasted veg & tahini'}, {name:'Tofu Stir-fry', price:10.25, desc:'Seasonal vegetables'} ] }
+    ];
+
+    window.$dc = {
+      loadHome() {
+        const app = document.getElementById('app');
+        const randomIndex = Math.floor(Math.random() * CATEGORIES.length);
+        const randomCategoryShortName = CATEGORIES[randomIndex].short_name;
+
+        app.innerHTML = `
+          <header>
+            <h1>Restaurant Demo — Random Specials</h1>
+            <div class="muted">Click tiles to navigate</div>
+          </header>
+
+          <section class="tiles">
+            <a class="tile" href="#" onclick="$dc.showAllCategories();return false;">
+              <div class="title">Menu</div>
+              <div class="muted">Browse all categories</div>
+            </a>
+
+            <!-- Notice: randomCategoryShortName injected into the onclick handler -->
+            <a class="tile" href="#" onclick="$dc.loadMenuItems('${randomCategoryShortName}');return false;">
+              <div class="title">Specials</div>
+              <div class="muted">(Opens a random category: ${randomCategoryShortName})</div>
+            </a>
+
+            <a class="tile" href="#" onclick="$dc.showMap();return false;">
+              <div class="title">Map</div>
+              <div class="muted">Find us on the map</div>
+            </a>
+          </section>
+
+          <footer>
+            Tip: Reload the homepage to get a different random category inserted into the Specials tile.
+          </footer>
+        `;
+      },
+
+      loadMenuItems(short_name) {
+        const app = document.getElementById('app');
+        const cat = CATEGORIES.find(c => c.short_name === short_name);
+        if (!cat) {
+          app.innerHTML = `<div>Category not found: ${short_name} <br><a class=\"back\" href=\"#\" onclick=\"$dc.loadHome();return false;\">◀ Back</a></div>`;
+          return;
+        }
+
+        app.innerHTML = `
+          <a class="back" href="#" onclick="$dc.loadHome();return false;">◀ Back</a>
+          <h2>${cat.name} <span class="muted">(${cat.short_name})</span></h2>
+
+          <div class="menu-list">
+            ${cat.items.map(it => `
+              <div class="menu-item">
+                <div>
+                  <div><strong>${escapeHtml(it.name)}</strong></div>
+                  <div class="muted">${escapeHtml(it.desc || '')}</div>
+                </div>
+                <div class="price">$${Number(it.price).toFixed(2)}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      },
+      
+      showAllCategories() {
+        const app = document.getElementById('app');
+        app.innerHTML = `
+          <a class="back" href="#" onclick="$dc.loadHome();return false;">◀ Back</a>
+          <h2>All Categories</h2>
+          <div class="menu-list">
+            ${CATEGORIES.map(c => `
+              <a href="#" class="menu-item" onclick="$dc.loadMenuItems('${c.short_name}');return false;">
+                <div>
+                  <div><strong>${escapeHtml(c.name)}</strong></div>
+                  <div class="muted">short_name: ${escapeHtml(c.short_name)}</div>
+                </div>
+                <div class="price">${c.items.length} items</div>
+              </a>
+            `).join('')}
+          </div>
+        `;
+      },
+
+      showMap() {
+        const app = document.getElementById('app');
+        app.innerHTML = `
+          <a class="back" href="#" onclick="$dc.loadHome();return false;">◀ Back</a>
+          <h2>Map</h2>
+          <p class="muted">(This is a demo — map would appear here in a real app.)</p>
+        `;
+      }
+    };
+
+    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+    document.addEventListener('DOMContentLoaded', () => {
+      $dc.loadHome();
+    });
+  </script>
+</body>
+</html>
